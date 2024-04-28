@@ -3,10 +3,12 @@
 namespace Nxu\PhpToml\Lexer;
 
 use Nxu\PhpToml\Lexer\Concerns\ScansComments;
+use Nxu\PhpToml\Lexer\Concerns\ScansStrings;
 
 class Lexer
 {
     use ScansComments;
+    use ScansStrings;
 
     /** @var string[] */
     private array $source;
@@ -34,6 +36,10 @@ class Lexer
 
         while (! $this->isEof() && ($char = $this->advance())) {
             switch ($char) {
+                case '"':
+                    $tokens[] = $this->basicString();
+                    break;
+
                 case '#':
                     $this->comment();
                     break;
@@ -83,9 +89,23 @@ class Lexer
         return $this->current >= $this->sourceLength;
     }
 
-    private function advance(): ?string
+    private function advance(): string
     {
-        return $this->source[$this->current++] ?: null;
+        return $this->source[$this->current++];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function advanceMultiple(int $count): array
+    {
+        $characters = [];
+
+        for ($i = 0; $i < $count; $i++) {
+            $characters[] = $this->advance();
+        }
+
+        return $characters;
     }
 
     private function peek(): string
