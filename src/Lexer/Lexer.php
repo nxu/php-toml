@@ -31,8 +31,13 @@ class Lexer
         while ($this->isNotEof() && ($char = $this->advance())) {
             switch ($char) {
                 case '"':
-                    // Parse string literal
-                    $tokens[] = (new StringScanner())->scan($this);
+                    // Parse basic string
+                    $tokens[] = (new StringScanner())->scan($this, isLiteral: false);
+                    break;
+
+                case "'":
+                    // Parse literal string
+                    $tokens[] = (new StringScanner())->scan($this, isLiteral: true);
                     break;
 
                 case '#':

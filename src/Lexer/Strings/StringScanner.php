@@ -9,9 +9,9 @@ use Nxu\PhpToml\Lexer\TokenType;
 
 class StringScanner
 {
-    public function scan(Lexer $lexer): Token
+    public function scan(Lexer $lexer, bool $isLiteral): Token
     {
-        $string = new StringLiteral($lexer->line);
+        $string = new StringLiteral($lexer->line, isLiteral: $isLiteral);
 
         while ($lexer->isNotEof() && $char = $lexer->advance()) {
             $result = $this->handleCharacter($lexer, $string, $char);
@@ -21,16 +21,16 @@ class StringScanner
             }
         }
 
-        return new Token(TokenType::String, $string->literal, $string->line);
+        return new Token(TokenType::String, $string->lexeme, $string->line);
     }
 
     private function handleCharacter(Lexer $lexer, StringLiteral $string, string $char): StringReadingResult
     {
-        if ($char == '"') {
+        if ($char == $string->quotationMark()) {
             return $this->handleQuotationMark($lexer, $string);
         }
 
-        if ($char == '\\') {
+        if ($char == '\\' && ! $string->isLiteral) {
             $this->handleBackslash($lexer, $string);
 
             return StringReadingResult::KeepReading;
@@ -59,7 +59,7 @@ class StringScanner
             // - either be quotation mark literals (" or "")
             // - or mark the end of multiline strings (""")
             return $this->handleQuotationMarkInMultilineString($lexer, $string);
-        } elseif ($this->isStartOfMultilineString($lexer)) {
+        } elseif ($this->isStartOfMultilineString($lexer, $string)) {
             $string->markAsMultiline();
 
             return StringReadingResult::KeepReading;
@@ -73,7 +73,7 @@ class StringScanner
     {
         $next = $lexer->advance();
 
-        if ($next == '"' && $lexer->peek() == '"') {
+        if ($next == $string->quotationMark() && $lexer->peek() == $string->quotationMark()) {
             // End of multiline string
             $lexer->advance();
 
@@ -81,7 +81,7 @@ class StringScanner
         }
 
         // Add the first quotation mark we checked
-        $string->concat('"');
+        $string->concat($string->quotationMark());
 
         // Add the next character
         $string->concat($next);
@@ -89,10 +89,10 @@ class StringScanner
         return StringReadingResult::KeepReading;
     }
 
-    private function isStartOfMultilineString(Lexer $lexer): bool
+    private function isStartOfMultilineString(Lexer $lexer, StringLiteral $string): bool
     {
-        // Starting and second " has been processed, check if there is a third
-        if ($lexer->peek() != '"') {
+        // Starting and second quotation mark has been processed, check if there is a third
+        if ($lexer->peek() != $string->quotationMark()) {
             return false;
         }
 
