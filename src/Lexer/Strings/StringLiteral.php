@@ -13,11 +13,6 @@ class StringLiteral
     ) {
     }
 
-    public function isNotMultiline(): bool
-    {
-        return ! $this->isMultiline;
-    }
-
     public function concat(string $literal): void
     {
         $this->literal .= $literal;

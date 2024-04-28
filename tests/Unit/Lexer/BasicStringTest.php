@@ -84,6 +84,24 @@ it('processes unescaped quotation marks in multiline strings', function () {
     expect($tokens[0]->lexeme)->toBe('Here are fifteen quotation marks: """"""""""""""".');
 });
 
+it('handles line ending backslashes', function () {
+    $lexer = new Lexer(<<<TOML
+"""
+The quick brown \
+
+
+  fox jumps over \
+    the lazy dog."""
+TOML
+    );
+
+    $tokens = $lexer->scan();
+
+    expect($tokens)->toHaveCount(2);
+    expect($tokens[0])->type->toBe(TokenType::String);
+    expect($tokens[0]->lexeme)->toBe('The quick brown fox jumps over the lazy dog.');
+});
+
 it('throws exception for invalid escape sequences', function () {
     (new Lexer('"\x"'))->scan();
 })->expectException(TomlParserException::class);

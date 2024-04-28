@@ -28,7 +28,7 @@ class Lexer
     {
         $tokens = [];
 
-        while (! $this->isEof() && ($char = $this->advance())) {
+        while ($this->isNotEof() && ($char = $this->advance())) {
             switch ($char) {
                 case '"':
                     // Parse string literal
@@ -87,9 +87,14 @@ class Lexer
         return $this->current >= $this->sourceLength;
     }
 
+    public function isNotEof(): bool
+    {
+        return ! $this->isEof();
+    }
+
     public function isWhitespace(string $char): bool
     {
-        return $char == ' ' || $char == '\t' || $char == '\n' || $char == '\r';
+        return $char == ' ' || $char == "\t" || $char == "\n" || $char == "\r";
     }
 
     public function advance(): string

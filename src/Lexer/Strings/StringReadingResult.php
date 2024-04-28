@@ -2,7 +2,7 @@
 
 namespace Nxu\PhpToml\Lexer\Strings;
 
-enum QuotationMarkResult
+enum StringReadingResult
 {
     case KeepReading;
     case EndOfString;
