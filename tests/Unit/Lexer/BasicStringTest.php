@@ -74,6 +74,16 @@ TOML
     expect($tokens[0]->lexeme)->toBe("Hello\nworld!\n");
 });
 
+it('processes unescaped quotation marks in multiline strings', function () {
+    $lexer = new Lexer('"""Here are fifteen quotation marks: ""\\"""\\"""\\"""\\"""\\"."""');
+
+    $tokens = $lexer->scan();
+
+    expect($tokens)->toHaveCount(2);
+    expect($tokens[0]->type)->toBe(TokenType::String);
+    expect($tokens[0]->lexeme)->toBe('Here are fifteen quotation marks: """"""""""""""".');
+});
+
 it('throws exception for invalid escape sequences', function () {
     (new Lexer('"\x"'))->scan();
 })->expectException(TomlParserException::class);

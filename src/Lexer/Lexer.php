@@ -2,24 +2,18 @@
 
 namespace Nxu\PhpToml\Lexer;
 
-use Nxu\PhpToml\Lexer\Concerns\ScansComments;
-use Nxu\PhpToml\Lexer\Concerns\ScansStrings;
+use Nxu\PhpToml\Lexer\Strings\StringScanner;
 
 class Lexer
 {
-    use ScansComments;
-    use ScansStrings;
-
     /** @var string[] */
     private array $source;
 
     private int $sourceLength;
 
-    private int $start = 0;
-
     private int $current = 0;
 
-    private int $line = 1;
+    public int $line = 1;
 
     public function __construct(string $source)
     {
@@ -37,11 +31,15 @@ class Lexer
         while (! $this->isEof() && ($char = $this->advance())) {
             switch ($char) {
                 case '"':
-                    $tokens[] = $this->basicString();
+                    // Parse string literal
+                    $tokens[] = (new StringScanner())->scan($this);
                     break;
 
                 case '#':
-                    $this->comment();
+                    // Advance until newline or EOF and ignore comment
+                    while ($this->peek() != "\n" && ! $this->isEof()) {
+                        $this->advance();
+                    }
                     break;
 
                 case '=':
@@ -84,12 +82,17 @@ class Lexer
         return $tokens;
     }
 
-    private function isEof(): bool
+    public function isEof(): bool
     {
         return $this->current >= $this->sourceLength;
     }
 
-    private function advance(): string
+    public function isWhitespace(string $char): bool
+    {
+        return $char == ' ' || $char == '\t' || $char == '\n' || $char == '\r';
+    }
+
+    public function advance(): string
     {
         return $this->source[$this->current++];
     }
@@ -97,7 +100,7 @@ class Lexer
     /**
      * @return array<int, string>
      */
-    private function advanceMultiple(int $count): array
+    public function advanceMultiple(int $count): array
     {
         $characters = [];
 
@@ -108,7 +111,7 @@ class Lexer
         return $characters;
     }
 
-    private function peek(): string
+    public function peek(): string
     {
         if ($this->isEof()) {
             return "\0";
