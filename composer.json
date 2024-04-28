@@ -1,0 +1,31 @@
+{
+    "name": "nxu/php-toml",
+    "description": "A TOML 1.0 parser for PHP",
+    "type": "library",
+    "require": {
+        "php": ">=8.2",
+        "ext-mbstring": "*"
+    },
+    "require-dev": {
+        "pestphp/pest": "^2.34",
+        "laravel/pint": "^1.15"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Nxu\\PhpToml\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Zsolt Fekete",
+            "email": "nxu@nxu.hu"
+        }
+    ],
+    "minimum-stability": "stable",
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}
