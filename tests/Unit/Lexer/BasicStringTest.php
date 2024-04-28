@@ -31,6 +31,49 @@ it('ignores characters after Unicode escape sequence', function () {
     expect($tokens[0]->lexeme)->toBe("\nHello \nHello");
 });
 
+it('processes multiline string with immediate newline', function () {
+    $lexer = new Lexer(<<<'TOML'
+"""
+Hello world!"""
+TOML
+    );
+
+    $tokens = $lexer->scan();
+
+    expect($tokens)->toHaveCount(2);
+    expect($tokens[0]->type)->toBe(TokenType::String);
+    expect($tokens[0]->lexeme)->toBe('Hello world!');
+});
+
+it('processes multiline string without immediate newline', function () {
+    $lexer = new Lexer(<<<'TOML'
+"""Hello world!"""
+TOML
+    );
+
+    $tokens = $lexer->scan();
+
+    expect($tokens)->toHaveCount(2);
+    expect($tokens[0]->type)->toBe(TokenType::String);
+    expect($tokens[0]->lexeme)->toBe('Hello world!');
+});
+
+it('processes multiline string with newlines', function () {
+    $lexer = new Lexer(<<<'TOML'
+"""
+Hello
+world!
+"""
+TOML
+    );
+
+    $tokens = $lexer->scan();
+
+    expect($tokens)->toHaveCount(2);
+    expect($tokens[0]->type)->toBe(TokenType::String);
+    expect($tokens[0]->lexeme)->toBe("Hello\nworld!\n");
+});
+
 it('throws exception for invalid escape sequences', function () {
     (new Lexer('"\x"'))->scan();
 })->expectException(TomlParserException::class);

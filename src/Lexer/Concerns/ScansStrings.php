@@ -16,7 +16,22 @@ trait ScansStrings
 
         while (! $this->isEof() && $char = $this->advance()) {
             if ($char == '"') {
+                if ($multiline) {
+                    // Already in a multiline string, process end of string
+                    if ($this->advanceMultiple(2) != ['"', '"']) {
+                        TomlParserException::throw("Unexpected '\"' - expected end of multiline string ('\"\"\"'')", $this->line);
+                    }
+
+                    break;
+                } elseif ($this->isMultiline()) {
+                    // Check if it is a start of a multiline string
+                    $multiline = true;
+
+                    continue;
+                }
+                // Else = end of string
                 break;
+
             }
 
             if ($char == "\n" && ! $multiline) {
@@ -35,6 +50,28 @@ trait ScansStrings
         }
 
         return new Token(TokenType::String, $literal, $line);
+    }
+
+    private function isMultiline(): bool
+    {
+        // Starting and second " has been processed, check if there is a third
+        if ($this->peek() != '"') {
+            return false;
+        }
+
+        // Ignore third quotation mark
+        $this->advance();
+
+        // Ignore immediate newline
+        if ($this->peek() == "\r") {
+            $this->advance();
+        }
+
+        if ($this->peek() == "\n") {
+            $this->advance();
+        }
+
+        return true;
     }
 
     private function getEscapedStringSequence(): string
