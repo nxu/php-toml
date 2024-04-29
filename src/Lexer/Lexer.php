@@ -67,6 +67,10 @@ class Lexer
                     $tokens[] = new Token(TokenType::Comma, $char, $this->line);
                     break;
 
+                case '.':
+                    $tokens[] = new Token(TokenType::Dot, $char, $this->line);
+                    break;
+
                 case '{':
                     $tokens[] = new Token(TokenType::OpeningBrace, $char, $this->line);
                     break;

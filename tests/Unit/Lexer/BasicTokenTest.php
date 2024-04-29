@@ -56,3 +56,16 @@ TOML;
     expect($tokens[0]->type)->toBe(TokenType::OpeningBrace);
     expect($tokens[1]->type)->toBe(TokenType::ClosingBrace);
 });
+
+it('parses commas and dots', function () {
+    $toml = <<<'TOML'
+,.
+TOML;
+
+    $lexer = new Lexer($toml);
+    $tokens = $lexer->scan();
+
+    expect($tokens)->toHaveCount(3);
+    expect($tokens[0]->type)->toBe(TokenType::Comma);
+    expect($tokens[1]->type)->toBe(TokenType::Dot);
+});
