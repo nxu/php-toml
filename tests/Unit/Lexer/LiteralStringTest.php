@@ -74,7 +74,7 @@ it('processes unescaped quotation marks in multiline strings', function () {
     expect($tokens[0]->lexeme)->toBe('Here are fifteen quotation marks: """""""""""""""');
 });
 
-it('processes unescaped apostrophes marks in multiline strings', function () {
+it('processes unescaped apostrophes in multiline strings', function () {
     $lexer = new Lexer("'''That's it!'''");
 
     $tokens = $lexer->scan();
