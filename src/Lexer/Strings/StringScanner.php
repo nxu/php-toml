@@ -16,6 +16,11 @@ readonly class StringScanner
         while ($lexer->isNotEof()) {
             $char = $lexer->advance();
 
+            if ($string->isMultiline && $lexer->isEof()) {
+                // Multiline strings must be closed with """
+                TomlParserException::throw('Unexpected end of file. Expected end of multiline string (\'"""\')', $lexer->line);
+            }
+
             $result = $this->handleCharacter($lexer, $string, $char);
 
             if ($result == StringReadingResult::EndOfString) {
@@ -53,10 +58,7 @@ readonly class StringScanner
 
     private function handleQuotationMark(Lexer $lexer, StringLiteral $string): StringReadingResult
     {
-        if ($string->isMultiline && $lexer->isEof()) {
-            // Multiline strings must be closed with """
-            TomlParserException::throw('Unexpected end of file. Expected end of multiline string (\'"""\')', $lexer->line);
-        } elseif ($string->isMultiline) {
+        if ($string->isMultiline) {
             // Quotation marks are allowed in multiline strings. They can
             // - either be quotation mark literals (" or "")
             // - or mark the end of multiline strings (""")

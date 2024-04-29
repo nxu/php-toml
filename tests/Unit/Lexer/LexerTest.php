@@ -1,5 +1,6 @@
 <?php
 
+use Nxu\PhpToml\Exceptions\TomlParserException;
 use Nxu\PhpToml\Lexer\Lexer;
 use Nxu\PhpToml\Lexer\TokenType;
 
@@ -143,3 +144,8 @@ it('scans TOML', function () {
         // EOF
         ->and($tokens[78]->type)->toBe(TokenType::EOF);
 });
+
+it('throws exception when reading invalid character', function () {
+    $lexer = new Lexer('****');
+    $lexer->scan();
+})->expectException(TomlParserException::class);

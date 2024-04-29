@@ -54,6 +54,16 @@ TOML
     expect($tokens[0]->lexeme)->toBe('Hello world!');
 });
 
+it('processes multiline string with immediate CRLF', function () {
+    $lexer = new Lexer("\"\"\"\r\nHello world!\"\"\"");
+
+    $tokens = $lexer->scan();
+
+    expect($tokens)->toHaveCount(2);
+    expect($tokens[0]->type)->toBe(TokenType::String);
+    expect($tokens[0]->lexeme)->toBe('Hello world!');
+});
+
 it('processes multiline string without immediate newline', function () {
     $lexer = new Lexer(<<<'TOML'
 """Hello world!"""
@@ -117,4 +127,12 @@ it('throws exception for invalid escape sequences', function () {
 
 it('throws exception for invalid escaped Unicode scalar values', function () {
     (new Lexer('"\U0011FFFF"'))->scan();
+})->expectException(TomlParserException::class);
+
+it('throws exception when EOL reached within a single line string', function () {
+    (new Lexer("\"This is a single line string with no ending quotes\n"))->scan();
+})->expectException(TomlParserException::class);
+
+it('throws exception when EOF reached within a multiline string', function () {
+    (new Lexer('"""This is a multiline string with no ending quotes'))->scan();
 })->expectException(TomlParserException::class);
