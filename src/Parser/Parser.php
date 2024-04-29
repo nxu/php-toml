@@ -59,7 +59,7 @@ class Parser
                     break 2;
             }
         }
-Í
+
         return $config;
     }
 
