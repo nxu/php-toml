@@ -13,7 +13,9 @@ readonly class StringScanner
     {
         $string = new StringLiteral($lexer->line, isLiteral: $isLiteral);
 
-        while ($lexer->isNotEof() && $char = $lexer->advance()) {
+        while ($lexer->isNotEof()) {
+            $char = $lexer->advance();
+
             $result = $this->handleCharacter($lexer, $string, $char);
 
             if ($result == StringReadingResult::EndOfString) {

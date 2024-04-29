@@ -13,6 +13,15 @@ it('can parse simple basic string', function () {
     expect($tokens[0]->lexeme)->toBe('This is a very basic string');
 });
 
+it('can parse string with dots', function () {
+    $lexer = new Lexer('"10.0.0.1"');
+    $tokens = $lexer->scan();
+
+    expect($tokens)->toHaveCount(2);
+    expect($tokens[0]->type)->toBe(TokenType::String);
+    expect($tokens[0]->lexeme)->toBe('10.0.0.1');
+});
+
 it('can parse escape sequences', function () {
     $lexer = new Lexer('"Escapes \b \t \n \f \r \" \\\\ \u000A \U0000000A"');
     $tokens = $lexer->scan();

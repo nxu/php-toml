@@ -10,7 +10,7 @@ readonly class LiteralScanner
 {
     public function canStartLiteral(string $char): bool
     {
-        return preg_match('/[A-Za-z0-9_-]/', $char) === 1;
+        return preg_match('/[A-Za-z0-9_+-]/', $char) === 1;
     }
 
     public function scan(Lexer $lexer, string $currentChar): Token
@@ -18,7 +18,9 @@ readonly class LiteralScanner
         $literal = $currentChar;
 
         while ($lexer->isNotEof()) {
-            if (! $this->canStartLiteral($char = $lexer->peek())) {
+            $char = $lexer->peek();
+
+            if (! $this->isAllowedInLiteral($char)) {
                 return new Token(TokenType::Literal, $literal, $lexer->line);
             }
 
@@ -29,5 +31,12 @@ readonly class LiteralScanner
 
         // EOF reached
         return new Token(TokenType::Literal, $literal, $lexer->line);
+    }
+
+    private function isAllowedInLiteral(string $char): bool
+    {
+        // Allow `:` and `.` inside literals
+        // `:` is only accepted in time values, `.` is allowed in floats
+        return preg_match('/[A-Za-z0-9_+:.-]/', $char) === 1;
     }
 }
