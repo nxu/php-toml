@@ -2,6 +2,8 @@
 
 namespace Nxu\PhpToml\Lexer;
 
+use Nxu\PhpToml\Exceptions\TomlParserException;
+use Nxu\PhpToml\Lexer\Literals\LiteralScanner;
 use Nxu\PhpToml\Lexer\Strings\StringScanner;
 
 class Lexer
@@ -26,18 +28,21 @@ class Lexer
      */
     public function scan(): array
     {
+        $stringScanner = new StringScanner();
+        $literalScanner = new LiteralScanner();
+
         $tokens = [];
 
         while ($this->isNotEof() && ($char = $this->advance())) {
             switch ($char) {
                 case '"':
                     // Parse basic string
-                    $tokens[] = (new StringScanner())->scan($this, isLiteral: false);
+                    $tokens[] = $stringScanner->scan($this, isLiteral: false);
                     break;
 
                 case "'":
                     // Parse literal string
-                    $tokens[] = (new StringScanner())->scan($this, isLiteral: true);
+                    $tokens[] = $stringScanner->scan($this, isLiteral: true);
                     break;
 
                 case '#':
@@ -82,6 +87,14 @@ class Lexer
                 case ' ':
                 case "\r":
                 case "\t":
+                    break;
+
+                default:
+                    if (! $literalScanner->canStartLiteral($char)) {
+                        TomlParserException::throw("Unexpected character '$char'", $this->line);
+                    }
+
+                    $tokens[] = $literalScanner->scan($this, $char);
                     break;
             }
         }

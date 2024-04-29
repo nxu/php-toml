@@ -7,7 +7,7 @@ use Nxu\PhpToml\Lexer\Lexer;
 use Nxu\PhpToml\Lexer\Token;
 use Nxu\PhpToml\Lexer\TokenType;
 
-class StringScanner
+readonly class StringScanner
 {
     public function scan(Lexer $lexer, bool $isLiteral): Token
     {
